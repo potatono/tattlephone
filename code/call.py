@@ -4,13 +4,13 @@ import tempfile
 import shutil
 
 class Call:
-    def __init__():
+    def __init__(self):
         self.recording = config.tattle_drop_name
         self.waittime = config.phone_ring_wait_time
         self.extension = config.phone_channel
         self.call_exec_path = config.call_spool_path
 
-    def write():
+    def write(self):
         tmphandle, tmppath = tempfile.mkstemp(text=True, suffix='.call')
 
         with os.fdopen(tmphandle, "w") as tmpfile:
@@ -21,7 +21,7 @@ class Call:
 
         return tmppath
 
-    def execute(callpath):
+    def execute(self, callpath):
         shutil.move(callpath, self.call_exec_path)
 
 
