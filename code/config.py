@@ -1,6 +1,8 @@
 import os
 
+tz = 'America/New_York'
 tattle_extension = 2
+tattle_duration = 15
 
 phone_extension = 204
 phone_protocol = "PJSIP"
@@ -20,5 +22,7 @@ tattle_drop_path = os.path.join(lib_path, 'sounds', 'en', 'custom',
 call_spool_prefix = os.path.join(spool_path, 'outgoing', 'tattle')
 call_spool_outgoing_prefix = os.path.join(spool_path, 'outgoing_done', 'tattle')
 
-calling_hours = ((21, 23),)
-calling_idle_time = 20
+calling_hours = ((11, 23),)
+call_mins_after_tattle = 3/60
+call_mins_after_answer = 60
+call_mins_after_no_answer = 10

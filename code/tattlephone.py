@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from datetime import timedelta
 import time
 
 import config
@@ -11,12 +12,12 @@ class Tattlephone:
     def __init__(self):
         self.voicemails = Voicemails()
         self.voicemails.read()
-        self.voicemails.add_listener(self.register_activity)
+        self.voicemails.add_listener(self.on_voicemail)
         self.voicemails.monitor()
-        self.register_activity()
+        self.call_in(minutes=0, afterhours=True)
 
     def now(self):
-        tz = pytz.timezone('America/New_York')
+        tz = pytz.timezone(config.tz)
         dt = pytz.utc.localize(datetime.now()).astimezone(tz)
 
         return dt
@@ -30,37 +31,49 @@ class Tattlephone:
 
         return False
 
-    def is_idle(self):
-        dt = self.now() - self.last_activity
-
-        return dt.seconds >= config.calling_idle_time
+    def on_voicemail(self, voicemail):
+        if voicemail.duration >= config.tattle_duration:
+            self.call_in(config.call_mins_after_tattle, afterhours=True)
+        else:
+            print("Voicemail too short {}<{}:".format(voicemail.duration, config.tattle_duration))
 
     def start(self):
         while True:
-            time.sleep(10)
+            print("Now:      ", self.now())
+            print("Next call:", self.next_call)
+            print("Next call after hours?", self.next_call_afterhours)
             print("Is calling hour?", self.is_calling_hour())
-            print("Is idle?", self.is_idle())
-            if self.is_calling_hour() and self.is_idle():
-                self.call()
+
+            if self.now() >= self.next_call:
+                if self.is_calling_hour() or self.next_call_afterhours:
+                    print("Calling!")
+                    self.next_call_afterhours = False
+                    self.call()
+                else:
+                    print("Cannot call after hours.")
+
+            time.sleep(3)
 
     def call(self):
-        print("Calling!")
         vms = self.voicemails
-        vms.filter()
         vms = vms.shuffled()
-        num = min(len(vms), 1)
-        for i in range(num):
-            vms[i].prep_playback(i)
+        num = 10
 
         print("Playing %d tattles.." % num)
         call = Call()
-        path = call.write(num)
-        call.execute(path)
-        print(path)
+        path = call.write(vms[0:num])
+        answered = call.execute(path)
+        answered = True
 
-    def register_activity(self, activity=None):
-        self.last_activity = self.now()
-        print("Activity at {}".format(self.last_activity))
+        if answered:
+            self.call_in(config.call_mins_after_answer)
+        else:
+            self.call_in(config.call_mins_after_no_answer)
+
+    def call_in(self, minutes, afterhours=False):
+        self.next_call = self.now() + timedelta(minutes=minutes)
+        self.next_call_afterhours = afterhours
+        print("Calling again in {} minutes at {}, afterhours={}".format(minutes, self.next_call, afterhours))
 
 if __name__ == "__main__":
     tattlephone = Tattlephone()

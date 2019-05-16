@@ -12,6 +12,7 @@ class Voicemails:
         self.voicemails = {}
         self.listeners = []
         self.monitoring = False
+        self.min_duration = config.tattle_duration
 
     def read(self):
         lst = os.listdir(self.spool_path)
@@ -20,8 +21,11 @@ class Voicemails:
         for number in numbers:
             if number not in self.voicemails:
                 v = Voicemail(number)
-                self.voicemails[number] = v
-                self.dispatch(v)
+
+                if v.duration >= self.min_duration:
+                    print("Adding {} to voicemails..".format(number))
+                    self.voicemails[number] = v
+                    self.dispatch(v)
 
     def add_listener(self, listener):
         self.listeners.append(listener)
@@ -48,9 +52,9 @@ class Voicemails:
         self.monitoring = False
         self.thread.join()
 
-    def filter(self, duration=15):
-        self.voicemails = { k: v for k, v in self.voicemails.items() 
-                if v.duration > duration }
+#    def filter(self, duration=15):
+#        self.voicemails = { k: v for k, v in self.voicemails.items() 
+#                if v.duration > duration }
 
     def random(self):
         vms = list(self.voicemails.values())

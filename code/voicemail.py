@@ -29,12 +29,11 @@ class Voicemail:
         self.time = self.time.astimezone(pytz.timezone('America/New_York'))
         self.duration = int(message['duration'])
 
-    def prep_playback(self, suffix=None):
+    def prep_playback(self):
         path = self.drop_path
 
-        if suffix is not None:
-            parts = os.path.splitext(path)
-            path = parts[0] + str(suffix) + parts[1]
+        parts = os.path.splitext(path)
+        path = parts[0] + str(self.num) + parts[1]
 
         shutil.copy(self.audio_path, path)
 
