@@ -8,9 +8,9 @@ import shutil
 import config
 
 class Voicemail:
-    def __init__(self, num):
+    def __init__(self, spool_path, num):
         self.num = num
-        self.spool_path = config.tattle_vm_path
+        self.spool_path = spool_path
         self.meta_path = os.path.join(self.spool_path,
                                       "msg{:04d}.txt".format(num))
         self.audio_path = os.path.join(self.spool_path,
@@ -25,15 +25,20 @@ class Voicemail:
 
         message = config['message']
         time = int(message['origtime'])
+        self.origtime = message['origtime']
         self.time = datetime.fromtimestamp(time, tz=pytz.UTC)
         self.time = self.time.astimezone(pytz.timezone('America/New_York'))
         self.duration = int(message['duration'])
+        
+        parts = os.path.splitext(self.drop_path)
+        self.drop_path = parts[0] + message['origtime'] + parts[1]
+        self.sound_name = 'custom/tattle' + message['origtime']
 
     def prep_playback(self):
         path = self.drop_path
 
-        parts = os.path.splitext(path)
-        path = parts[0] + str(self.num) + parts[1]
+        #parts = os.path.splitext(path)
+        #path = parts[0] + str(self.num) + parts[1]
 
         shutil.copy(self.audio_path, path)
 

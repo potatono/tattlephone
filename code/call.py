@@ -22,7 +22,7 @@ class Call:
         return s
 
     def vm_string(self, vm):
-        result = self.digits_string(vm.num) + "&custom/tattle{}".format(vm.num)
+        result = self.digits_string(vm.num) + "&" + vm.sound_name
 
         print("VM #{} = {}".format(vm.num, result))
 

@@ -12,8 +12,10 @@ phone_ring_wait_time = 15
 spool_path = "/var/spool/asterisk"
 lib_path = "/var/lib/asterisk"
 
-tattle_vm_path = os.path.join(spool_path, 'voicemail', 'default',
+tattle_vm_inbox_path = os.path.join(spool_path, 'voicemail', 'default',
                               str(tattle_extension), 'INBOX')
+tattle_vm_old_path = os.path.join(spool_path, 'voicemail', 'default',
+                              str(tattle_extension), 'Old')
 
 tattle_drop_name = 'custom/tattle1'
 tattle_drop_path = os.path.join(lib_path, 'sounds', 'en', 'custom',
