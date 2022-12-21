@@ -30,6 +30,7 @@ class Voicemails:
         numbers = [int(f[3:7]) for f in lst if f.endswith('.txt')]
 
         for number in numbers:
+            #print("Loading {} {}".format(path, number))
             v = Voicemail(path, number)
             v.num = self.num
             self.num += 1

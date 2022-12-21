@@ -52,6 +52,10 @@ class Tattlephone:
                 else:
                     print("Cannot call after hours.")
 
+            if self.has_play_request():
+                print("Calling for play request!")
+                self.call()
+
             time.sleep(3)
 
     def call(self):
@@ -63,7 +67,6 @@ class Tattlephone:
         call = Call()
         path = call.write(vms[0:num])
         answered = call.execute(path)
-        answered = True
 
         if answered:
             self.call_in(config.call_mins_after_answer)
@@ -74,6 +77,15 @@ class Tattlephone:
         self.next_call = self.now() + timedelta(minutes=minutes)
         self.next_call_afterhours = afterhours
         print("Calling again in {} minutes at {}, afterhours={}".format(minutes, self.next_call, afterhours))
+
+    def has_play_request(self):
+        if os.path.exists(config.tattle_play_request):
+            os.remove(config.tattle_play_request)
+            time.sleep(5)
+
+            return True
+
+        return False
 
 if __name__ == "__main__":
     tattlephone = Tattlephone()
