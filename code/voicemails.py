@@ -15,11 +15,10 @@ class Voicemails:
         self.min_duration = config.tattle_duration
 
     def read(self):
-        # Gross
-        self.num = 1
+        self.maxnum = 0
         self.times = {}
         self.read_path(config.tattle_vm_inbox_path)
-        self.read_path(config.tattle_vm_old_path)
+        #self.read_path(config.tattle_vm_old_path)
 
         for k, v in self.voicemails.items():
             if v.time not in self.times:
@@ -27,13 +26,14 @@ class Voicemails:
 
     def read_path(self, path):
         lst = os.listdir(path)
-        numbers = [int(f[3:7]) for f in lst if f.endswith('.txt')]
+        start = len('tattle')
+        numbers = [int(f[start:start+4]) for f in lst if f.endswith('.txt')]
 
         for number in numbers:
-            #print("Loading {} {}".format(path, number))
-            v = Voicemail(path, number)
-            v.num = self.num
-            self.num += 1
+            v = Voicemail(number)
+            v.read()
+            v.num = number
+            self.maxnum = max(self.maxnum, number)
 
             self.times[v.time] = True
             if v.time not in self.voicemails:
@@ -83,4 +83,12 @@ class Voicemails:
         random.shuffle(vms)
 
         return vms
+
+    def get_next_number(self):
+        return self.maxnum + 1
+
+
+    def add(self, vm):
+        self.voicemails[vm.time] = vm
+        self.maxnum = max(self.maxnum, vm.num)
 

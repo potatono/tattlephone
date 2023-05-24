@@ -8,16 +8,21 @@ import shutil
 import config
 
 class Voicemail:
-    def __init__(self, spool_path, num):
+    def __init__(self, num):
         self.num = num
-        self.spool_path = spool_path
+        self.spool_path = config.tattles_path
         self.meta_path = os.path.join(self.spool_path,
-                                      "msg{:04d}.txt".format(num))
+                                      "tattle{:04d}.txt".format(num))
         self.audio_path = os.path.join(self.spool_path,
-                                      "msg{:04d}.wav".format(num))
+                                      "tattle{:04d}.wav".format(num))
         self.drop_path = config.tattle_drop_path
 
-        self.read()
+        self.origtime = int(datetime.utcnow().timestamp())
+        self.time = datetime.fromtimestamp(self.origtime, tz=pytz.UTC)
+        self.time = self.time.astimezone(pytz.timezone('America/New_York'))
+        self.duration = 0
+        #self.read()
+        
 
     def read(self):
         config = configparser.ConfigParser()
@@ -33,6 +38,16 @@ class Voicemail:
         parts = os.path.splitext(self.drop_path)
         self.drop_path = parts[0] + message['origtime'] + parts[1]
         self.sound_name = 'custom/tattle' + message['origtime']
+
+    def write(self, duration):
+        config = configparser.ConfigParser()
+
+        config['message'] = {
+                'origtime': self.origtime,
+                'duration': duration
+        }
+        with open(self.meta_path, 'w') as configfile:
+            config.write(configfile)
 
     def prep_playback(self):
         path = self.drop_path
